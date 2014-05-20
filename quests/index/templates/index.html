@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block extra %}
+<style>
+.block {display:inline; float:left; width:100px;height:60px; border:solid 5px white; background:beige;}
+.block a p {text-align:center;}
+</style>
+{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+{% for group in groups|slice:"30" %}
+<div class="block">
+<a href="{% url 'single_quest' uid=group %}"><p>{{ group }}</p></a>
+</div>
+{% endfor %}
+{% comment %}
+{% for quest in quests %}
+<a href="{% url 'single_quest' uid=quest.uid %}"><p>{{ quest.title }}</p></a>
+{% endcomment %}
+{% endblock %}

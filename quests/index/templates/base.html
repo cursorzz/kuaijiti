@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<meta name="description" content="Write some words to describe your html page">
+<title>Page Title</title>
+<style>
+ body {
+  	margin: auto;
+  	}
+#wrapper {width: 960px; margin:0 auto;}
+</style>
+{% block extra %}
+{% endblock %}
+</head>
+<body>
+    <div id="wrapper">
+        <div id="grid">
+            <div class="">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <div class="">
+            </div>
+            <div class=""></div>
+        </div>
+    </div>
+    {% block user_js %}
+    {% endblock %}
+</body>
+</html>

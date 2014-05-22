@@ -1,1 +1,1 @@
-pip install redis
+redis

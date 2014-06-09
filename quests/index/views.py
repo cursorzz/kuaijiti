@@ -180,3 +180,6 @@ def mark_day_cleared(request):
             rdb.sadd('clean_day:%s'%request.user.pk, "parse:%s"%day)
             return JSONResponse(success=True)
     return JSONResponse(success=False)
+
+def update_redis(request):
+

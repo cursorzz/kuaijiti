@@ -1,1 +1,4 @@
 redis
+django-redis
+BeautifulSoup4
+mechanize

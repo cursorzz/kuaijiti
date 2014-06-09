@@ -1,0 +1,12 @@
+api:aBv5vhN9Lggo58zURGFsHE56
+secret: FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su
+id: 2714562
+
+
+redis: 
+name IJfDMgVqXzVooDblwJCG
+host redis.duapp.com
+port 80
+
+name/password: api/secret
+aBv5vhN9Lggo58zURGFsHE56-FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su-IJfDMgVqXzVooDblwJCG

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block extra %}
+<style>
+    h2 {text-align:center; margin-top:5px;}
+    .quest {padding:10px; background: lavender; margin:0px 10px 80px 80px; border-radius: 5px;border-bottom: solid 6px rgb(192, 192, 213)}
+    .answer {background: rgb(250, 235, 215); padding:10px; border-radius: 15px;}
+    p.next {text-align:center; margin-bottom:0px;}
+    p.next {background:rgb(222, 184, 135);}
+    p.next:hover {background:white;}
+    label.choose {
+        float: left;
+        padding-left: 37px;
+        text-indent: -37px;
+    }
+    .header {
+    margin-left: 105px;
+    list-style: none;
+    margin-top: 10px;
+    background: beige;
+    color: red;
+    width: 50px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: -5px;
+    padding: 5px 10px;
+}
+.extra {margin-top:100px;}
+</style>
+{% endblock %}
+{% block content %}
+{% for quest in quests %}
+<a name='{{ forloop.counter }}'></a>
+<div class="quest" id="{{ forloop.counter }}" style="display:none">
+    <h4>{{ quest.title }}</h4><a href="{{ quest.link }}">{{ quest.link }}</a>
+    <div class="inner">
+        <p>({{ quest.type }}):</p><p>{{ quest.question }}</p>
+        {% for option in quest.options %}
+        <label class="choose"><input type="checkbox" name="choice" value="{{ option|first }}">{{ option|first }} {{ option|last }}</label>
+        {% endfor %}
+    </div>
+    <div class="extra">
+        <input type="button" value="查看答案">
+        <div class="answer" style="display:none">
+            <p>答案:{{ quest.answer|join:" " }}</p>
+            <p>{{ quest.reason }}</p>
+            <p class="next" value="{{ forloop.counter }}">下一题</p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+{% block user_js %}
+<script>
+actions = function () {
+    this.index = 0;
+    var that = this;
+    function toggle(input) {
+        this.answer = $(input).siblings('.answer');
+        if (this.answer.css('display') === 'none') {
+            this.answer.css('display', 'block')
+            } else {
+            this.answer.css('display', 'none')
+        }
+    }
+    function switchContent() {
+        var next = that.index + 1;
+        if (!!$('#' + next).length) {
+        $('#' + that.index).css('display', 'none');
+        $('#' + next).css('display', 'block');
+        that.index = next;
+    }
+    }
+    return {
+        toggle: toggle,
+        switchContent: switchContent
+    }
+}()
+$('input[type=button]').click(function(ev) {
+actions.toggle(ev.target)
+})
+actions.switchContent();
+$('.next').click(function(ev) {
+    actions.switchContent()
+})
+</script>
+{% endblock %}

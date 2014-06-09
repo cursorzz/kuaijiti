@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block left_sidebar %}
+{% endblock %}
+{% block content %}
+<form method="post" action="" class="forms">
+    {% csrf_token %}
+    {% for field in form %}
+    <label>
+        {{ field.label }}
+        {{ field }}
+        {% for error in field.errors %}
+        <span class="error">{{ error }}</span>
+        {% endfor %}
+        <!--<input type="email" name="user-email" class="width-50" />-->
+    </label>
+    {% endfor %}
+    <p>
+        <button class="btn btn-green">注册</button>
+    </p>
+</form>
+{% endblock %}

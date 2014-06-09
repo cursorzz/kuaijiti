@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block extra %}
+<style>
+    .forms-list label {
+        padding-left: 26px;
+        text-indent: -26px;
+    }
+    .forms-list input {
+        margin-right: 5px;
+        }
+    .quest {
+        background: rgb(246, 246, 246);
+        padding: 20px;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        border-bottom: solid 7px gainsboro;
+        border-radius: 5px;
+        }
+    .answer {
+        background: darkgray;
+        margin-top: 5px;
+        border: solid 1px darkgray;
+        border-radius: 5px;
+        padding: 5px;
+        }
+        .error, .success {
+            font-size: inherit;
+            }
+</style>
+{% endblock %}
+
+{% block content %}
+{% for quest in quests %}
+<div class="quest" id="{{ forloop.counter }}" style="display:none;">
+    <h4 class="">{{ quest.title }}
+            <a href="{{ quest.link }}" style="" target="_blank">url</a>
+    </h4>
+    <div class="inner">
+        <p>({{ quest.type }}):</p><p>{{ quest.question }}</p>
+        <ul class="forms-list">
+        {% for option in quest.options %}
+        <li>
+            <label for="{{ option|first }}"><input type="checkbox" name="choice" id="{{ option|first }}"{% if option|first in quest.answer %} class="check"{% endif %}>{{ option|first }} {{ option|last }}</label>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="extra">
+        <div class="group">
+            <button class="show btn left btn-green" id="{{ quest.uid }}">查看答案</button>
+        <button class="btn right next btn-red" style="display:none;">下一题</button>
+        </div>
+        <div class="answer" style="display:none">
+            <p>答案:{{ quest.answer|join:" " }}</p>
+            <p>{{ quest.reason }}</p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+{% block left_sidebar %}
+<ul>
+{% for other in others %}
+{% ifequal uid other|stringformat:"s" %}
+<li>
+<span>{{ uid }}</span>
+</li>
+{% else %}
+<li><a href="{% url 'single_quest' uid=other %}">{{ other }}</a></li>
+{% endifequal %}
+{% endfor %}
+</ul>
+{% endblock %}
+{% block user_js %}
+<script>
+actions = function () {
+    this.index = 0;
+    var that = this;
+    this.day_pass = true; // 一天的题都对了
+    function toggle(input) {
+        this.answer = $(input).parents('div').siblings('.answer');
+        this.next = $(input).siblings('.next');
+        if (this.answer.css('display') === 'none') {
+            this.answer.css('display', 'block');
+            this.next.css('display', 'block');
+            recordError(input.id, check())
+            } else {
+            this.answer.css('display', 'none');
+            this.next.css('display', 'none');
+            clearError()
+        }
+    }
+    function recordError(uid, passed){
+        $.post(
+        '{% url "mark_failed" %}',
+        {uid: uid, passed: passed, csrfmiddlewaretoken: '{{ csrf_token }}'}
+        )
+        // 要处理成功和失败的情况
+    }
+    function switchContent() {
+        var next = that.index + 1;
+        if (!!$('#' + next).length) {
+        $('#' + that.index).css('display', 'none');
+        $('#' + next).css('display', 'block');
+        that.index = next;
+    }
+    }
+    function check() {
+        var pass = true;
+        this.inputs = $('#' + index + ' input');
+        for (var i in this.inputs){
+            var input = this.inputs[i];
+            if (input.className === 'check') {
+                input.parentElement.className = 'success'
+            }
+            if (!!input.checked != (input.className === 'check')) {
+                input.parentElement.className = 'error';
+                pass = false
+            }
+        }
+        return pass
+    }
+    function clearError() {
+        $('#' + index + ' label').removeClass('error');
+        $('#' + index + ' label').removeClass('success')
+
+    }
+    return {
+        toggle: toggle,
+        switchContent: switchContent
+    }
+}()
+$(function(){
+$('.show').click(function(ev) {
+actions.toggle(ev.target)
+})
+actions.switchContent();
+$('.next').click(function(ev) {
+    actions.switchContent()
+})
+})
+</script>
+{% endblock %}

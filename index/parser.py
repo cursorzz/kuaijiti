@@ -6,6 +6,7 @@ import re
 from bs4 import BeautifulSoup as bs
 import datetime
 import hashlib
+from django.conf import settings
 #from multiprocessing import Process, Pool
 
 ROOT_URL = 'http://www.chinaacc.com/zhucekuaijishi/mryl/qk/'
@@ -14,7 +15,7 @@ date_fmt = "%Y%m%d"
 
 import redis
 
-client = redis.StrictRedis(db=0)
+client = redis.StrictRedis(**settings.REDIS_DB)
 
 prefix = 'parse:'
 #HTTP Error 404: Not Found http://www.chinaacc.com/zhucekuaijishi/mryl/tu2014030108515426479505.shtml

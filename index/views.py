@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from parser import Parse
+from django.conf import settings
 
 import redis
 from hashlib import md5
@@ -23,7 +24,7 @@ class CacheDB(object):
         return self.client
 
     def get_client(self):
-        self.client =  redis.StrictRedis(db=5)
+        self.client =  redis.StrictRedis(**settings.REDIS_DB)
 
     def get_latest_quests(self):
         c = self.connect()

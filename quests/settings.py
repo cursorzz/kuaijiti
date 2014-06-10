@@ -1,7 +1,7 @@
 # Django settings for quests project.
 from common.xdg import get_path
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -9,19 +9,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-if not DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'XKhiXoNMpPmlvClmUico',                      # Or path to database file if using sqlite3.
-            # The following settings are not used with sqlite3:
-            'USER': 'aBv5vhN9Lggo58zURGFsHE56',
-            'PASSWORD': 'FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su',
-            'HOST': 'sqld.duapp.com',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '4050',                      # Set to empty string for default.
-        }
-    }
-else:
+if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -33,6 +21,26 @@ else:
             'PORT': '',                      # Set to empty string for default.
         }
     }
+    REDIS_DB = {
+            'db': 5
+            }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'XKhiXoNMpPmlvClmUico',                      # Or path to database file if using sqlite3.
+            # The following settings are not used with sqlite3:
+            'USER': 'aBv5vhN9Lggo58zURGFsHE56',
+            'PASSWORD': 'FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su',
+            'HOST': 'sqld.duapp.com',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            'PORT': '4050',                      # Set to empty string for default.
+        }
+    }
+    REDIS_DB = {
+            'host': 'redis.duapp.com',
+            'port': 80,
+            'password': "%s-%s-%s"%('aBv5vhN9Lggo58zURGFsHE56', 'FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su',  'xpmunVCjmcXwbGgzPXRO')
+            }
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []

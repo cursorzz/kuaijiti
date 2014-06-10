@@ -22,6 +22,7 @@ urlpatterns = patterns('',
 
      url(r'record/error$', 'index.views.mark_failed', name="mark_failed"),
      url(r'logout/$', 'index.views.user_logout', name="logout"),
+     url(r'update/$', 'index.views.update_redis', name="update_redis"),
 
 
     # Uncomment the admin/doc line below to enable admin documentation:

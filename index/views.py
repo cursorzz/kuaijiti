@@ -5,6 +5,8 @@ from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from parser import Parse
+
 import redis
 from hashlib import md5
 import json
@@ -32,7 +34,6 @@ class CacheDB(object):
         c = self.connect()
         return sorted(map(lambda k: int(k.split(':')[1]), c.keys('parse:*')), reverse=True)
 
-        
     def get_quests_by_day(self, day):
         c = self.connect()
         urls = c.lrange("parse:%s"%day, 0, 20)
@@ -48,6 +49,9 @@ class CacheDB(object):
             sufix = url
         c = self.connect()
         quest = c.hgetall('quest:' + sufix)
+        print 'quest:%s'%sufix
+        if not quest:
+            return quest
         option = quest['options']
         answer = quest['answer']
         quest['options'] = sorted(eval(option).items(), key=lambda k: k[0])
@@ -182,4 +186,9 @@ def mark_day_cleared(request):
     return JSONResponse(success=False)
 
 def update_redis(request):
-
+    p = Parse()
+    try:
+        p.run()
+    except Exception, e:
+        return JSONResponse(success=False, error=e)
+    return JSONResponse(success=True)

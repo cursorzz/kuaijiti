@@ -14,10 +14,10 @@ date_fmt = "%Y%m%d"
 
 import redis
 
-client = redis.StrictRedis(db=5)
+client = redis.StrictRedis(db=0)
 
 prefix = 'parse:'
-
+#HTTP Error 404: Not Found http://www.chinaacc.com/zhucekuaijishi/mryl/tu2014030108515426479505.shtml
 
 class Parse(object):
 
@@ -30,7 +30,7 @@ class Parse(object):
         self.error = []
 
     def get_client(self):
-        return redis.StrictRedis(db=10)
+        return redis.StrictRedis(db=0)
 
     def get_needed_links(self, br):
         for link in br.links(url_regex=r'^/zhucekuaijishi/mryl\S+.shtml$'):
@@ -51,17 +51,18 @@ class Parse(object):
 
     def get_day_quests(self, link):
         #page = self.br.follow_link(link)
-        date_match = re.match(day_pattern, link.absolute_url).groups()[0]
+        url, absolute_url = link.url, link.absolute_url
+        date_match = re.match(day_pattern, absolute_url).groups()[0]
         if client.exists(prefix + date_match):
             return
-        print "new_quests", link.absolute_url
-        self.br.open(link.absolute_url) 
+        print "new_quests", absolute_url
+        self.br.open(absolute_url) 
         quests = []
         for l in self.br.links(url_regex=r"^.+zhucekuaijishi/mryl/\w\w%s\d+.shtml$"%(date_match)):
             if 'target' in dict(l.attrs) and re.match(day_pattern, l.absolute_url).groups()[0] == date_match:
                 quests.append(l.absolute_url)
         if quests == []:
-            print link.url
+            print url
             return
         client.rpush(prefix+date_match, *quests)
         return
@@ -82,6 +83,7 @@ class Parse(object):
         #link = 'http://www.chinaacc.com/zhucekuaijishi/mryl/ya2014032909012963701628.shtml'
         #link = "http://www.chinaacc.com/zhucekuaijishi/mryl/sh2014051709225974031849.shtml"
         #link = "http://www.chinaacc.com/zhucekuaijishi/mryl/wa2014052008504669376405.shtml"
+        #link = "http://www.chinaacc.com/zhucekuaijishi/mryl/zh2014060109140886125959.shtml"
         #http://www.chinaacc.com/zhucekuaijishi/mryl/ya2014051810115089335189.shtml
         md5 = hashlib.md5(link).hexdigest()
         date_match = re.match(day_pattern, link).groups()[0]
@@ -178,6 +180,9 @@ class Parse(object):
 
 if __name__ == '__main__':
     p = Parse()
+    #p.get_quest_content(None, force=True)
+    #p.get_day_quests()
+    #p.get_day_quests('http://www.chinaacc.com/zhucekuaijishi/mryl/zh2014060109244211866160.shtml')
     #p.add_missing_options()
     #p.add_missing_answers()
 

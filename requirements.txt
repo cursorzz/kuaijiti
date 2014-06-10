@@ -3,3 +3,4 @@ redis
 django-redis
 BeautifulSoup4
 mechanize
+MySQLdb

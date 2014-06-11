@@ -19,7 +19,7 @@ RANK_LIST = "rank_info:user_list"
 class CacheDB(object):
     client = None
     def connect(self):
-        if not self.client or not self.client.ping():
+        if not self.client:
             self.get_client()
         return self.client
 

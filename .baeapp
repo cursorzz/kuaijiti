@@ -1,0 +1,14 @@
+alias: []
+appid: appid71bce1axje
+appname: None
+cdatetime: '1399872748'
+createtype: web
+domain: cursorzz01.duapp.com
+inum: '1'
+lang_type: python
+name: cursorzz01
+release_revision: 860eb7e5be74ca71fda572c59baa5b9ae749a0da
+repos_url: https://git.duapp.com/appid71bce1axje
+solution: python-web
+status: '4'
+version_type: git

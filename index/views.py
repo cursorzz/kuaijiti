@@ -28,7 +28,11 @@ class CacheDB(object):
 
     def get_latest_quests(self):
         c = self.connect()
-        latest_day = sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')))[-1]
+        days = sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')))
+        if days:
+            latest_day = days[-1]
+        else:
+            latest_day = {}
         return self.get_quests_by_day(latest_day)
 
     def get_sorted_groups(self):

@@ -37,7 +37,7 @@ class CacheDB(object):
 
     def get_sorted_groups(self):
         c = self.connect()
-        return sorted(map(lambda k: int(k.split(':')[1]), c.keys('days_list')), reverse=True)
+        return sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')), reverse=True)
 
     def get_quests_by_day(self, day):
         c = self.connect()

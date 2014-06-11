@@ -66,6 +66,7 @@ class Parse(object):
             print url
             return
         client.rpush(prefix+date_match, *quests)
+        client.sadd("days_list", prefix + date_match)
         return
 
         #urls = page.select('#fontzoom span a')
@@ -118,6 +119,7 @@ class Parse(object):
                 elif u"答案解析" in p.text:
                     info['reason'] = p.text
             client.hmset("quest:"+md5, info)
+            client.sadd("quest_list", "quest:" + md5)
             return info
         except Exception, e:
             print e, link
@@ -132,15 +134,15 @@ class Parse(object):
         self.follow_url()
         for index, link in enumerate(self.link_list):
             self.get_day_quests(link)
-        print len(client.keys(prefix+'*'))
+        print client.scard('days_list')
         #self.get_quest_content(None)
         #client.delete(*client.keys('quest:*'))
         #count = 0
-        for key in client.keys(prefix + '*'):
+        for key in client.smembers('days_list'):
             urls = client.lrange(key, 0, 20)
             for url in urls:
                 self.get_quest_content(url, force=False)
-        print len(client.keys('quest:*'))
+        print client.scard('quest_list')
 
     def patch(self):
         for key in client.keys('quest:*'):
@@ -160,7 +162,6 @@ class Parse(object):
                 continue
             if not quest['reason']:
                 self.get_quest_content(quest['link'], force=True)
-
 
         #sleep(3)
         ##pool = Pool(processes=5)

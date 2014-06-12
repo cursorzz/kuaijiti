@@ -26,6 +26,7 @@ class CacheDB(object):
 
     def get_client(self):
         self.client =  redis.Redis(**settings.REDIS_DB)
+        return self.client
 
     def get_latest_quests(self):
         c = self.connect()

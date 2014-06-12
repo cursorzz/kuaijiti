@@ -11,6 +11,7 @@ from django.conf import settings
 import redis
 from hashlib import md5
 import json
+from traceback import print_exc
 RANK_GLOBAL = "global"
 RANK_WEEK = "week"
 
@@ -25,8 +26,14 @@ class CacheDB(object):
         #return self.client
 
     def get_client(self):
-        self.client =  redis.Redis(**settings.REDIS_DB)
-        return self.client
+        try:
+            self.client =  redis.Redis(**settings.REDIS_DB)
+            return self.client
+        except redis.ConnectionError:
+            print_exc()
+            pass
+            
+
 
     def get_latest_quests(self):
         c = self.connect()

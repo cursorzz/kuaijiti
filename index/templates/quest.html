@@ -30,6 +30,7 @@
 {% endblock %}
 
 {% block content %}
+{{ debug }}
 {{ redis|pprint }}
 {% for quest in quests %}
 <div class="quest" id="{{ forloop.counter }}" style="display:none;">

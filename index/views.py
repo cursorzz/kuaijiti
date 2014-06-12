@@ -19,12 +19,13 @@ RANK_LIST = "rank_info:user_list"
 class CacheDB(object):
     client = None
     def connect(self):
-        if not self.client:
-            self.get_client()
-        return self.client
+        return self.get_client()
+        #if not self.client:
+            #self.get_client()
+        #return self.client
 
     def get_client(self):
-        self.client =  redis.StrictRedis(**settings.REDIS_DB)
+        self.client =  redis.Redis(**settings.REDIS_DB)
 
     def get_latest_quests(self):
         c = self.connect()

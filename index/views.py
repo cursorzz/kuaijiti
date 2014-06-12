@@ -147,6 +147,7 @@ class ErrorView(TemplateView):
 
         rdb = CacheDB()
         kwargs['quests'] = rdb.get_errors(user.pk)
+        kwargs['redis'] = settings.REDIS_DB
         return super(ErrorView, self).get_context_data(**kwargs)
 
 class LoginView(FormView):

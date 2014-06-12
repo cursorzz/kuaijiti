@@ -7,6 +7,7 @@ path = os.path.dirname(os.path.abspath(__file__)) + '/quests'
 if path not in sys.path:
     sys.path.insert(1, path)
 
-from django.core.wsgi import get_wsgi_application
+from django.core.handlers.wsgi import WSGIHandler
+from bae.core.wsgi import WSGIApplication
  
-application = get_wsgi_application()
+application = WSGIApplication(WSGIHandler())

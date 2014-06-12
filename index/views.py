@@ -142,12 +142,12 @@ class ErrorView(TemplateView):
 
     def get_context_data(self, **kwargs):
         user = self.request.user
+        kwargs['redis'] = settings.REDIS_DB
         if not user.is_authenticated():
             return super(ErrorView, self).get_context_data(**kwargs)
 
         rdb = CacheDB()
         kwargs['quests'] = rdb.get_errors(user.pk)
-        kwargs['redis'] = settings.REDIS_DB
         return super(ErrorView, self).get_context_data(**kwargs)
 
 class LoginView(FormView):

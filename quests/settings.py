@@ -1,7 +1,7 @@
 # Django settings for quests project.
 from common.xdg import get_path
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -9,7 +9,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-if DEBUG:
+if not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.

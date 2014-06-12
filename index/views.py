@@ -5,13 +5,15 @@ from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from parser import Parse
 from django.conf import settings
 
 import redis
 from hashlib import md5
 import json
 from traceback import print_exc
+from models import Quest, ErrorRecord, DayClearRecord
+from parser import Updater
+import datetime
 RANK_GLOBAL = "global"
 RANK_WEEK = "week"
 
@@ -36,62 +38,75 @@ class CacheDB(object):
 
 
     def get_latest_quests(self):
-        c = self.connect()
-        days = sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')))
-        if days:
-            latest_day = days[-1]
-        else:
-            latest_day = {}
-        return self.get_quests_by_day(latest_day)
+        day = Quest.objects.all().latest('date').date
+        return Quest.objects.filter(date=day)
+
+        #days = sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')))
+        #if days:
+            #latest_day = days[-1]
+        #else:
+            #latest_day = {}
+        #return self.get_quests_by_day(latest_day)
 
     def get_sorted_groups(self):
-        c = self.connect()
-        return sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')), reverse=True)
+        return Quest.objects.all().values_list('date', flat=True).distinct()
+
+        #c = self.connect()
+        #return sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')), reverse=True)
 
     def get_quests_by_day(self, day):
-        c = self.connect()
-        urls = c.lrange("parse:%s"%day, 0, 20)
-        quests = []
-        for u in urls:
-            quests.append(self.get_quest_by_link(u))
-        return quests
+        return Quest.objects.filter(date=day)
 
-    def get_quest_by_link(self, url):
-        if not len(url) == 32:
-            sufix = md5(url).hexdigest()
-        else:
-            sufix = url
-        c = self.connect()
-        quest = c.hgetall('quest:' + sufix)
-        print 'quest:%s'%sufix
-        if not quest:
-            return quest
-        option = quest['options']
-        answer = quest['answer']
-        quest['options'] = sorted(eval(option).items(), key=lambda k: k[0])
-        quest['answer'] = eval(answer)
-        return quest
+        #c = self.connect()
+        #urls = c.lrange("parse:%s"%day, 0, 20)
+        #quests = []
+        #for u in urls:
+            #quests.append(self.get_quest_by_link(u))
+        #return quests
 
-    def add_error(self, pk, uid):
-        c = self.connect()
-        c.sadd('error_set:%s'%pk, "quest:%s"%uid)
+    #def get_quest_by_link(self, url):
+        #if not len(url) == 32:
+            #sufix = md5(url).hexdigest()
+        #else:
+            #sufix = url
+        #c = self.connect()
+        #quest = c.hgetall('quest:' + sufix)
+        #print 'quest:%s'%sufix
+        #if not quest:
+            #return quest
+        #option = quest['options']
+        #answer = quest['answer']
+        #quest['options'] = sorted(eval(option).items(), key=lambda k: k[0])
+        #quest['answer'] = eval(answer)
+        #return quest
 
-    def remove_error(self, pk, uid):
-        c = self.connect()
-        c.srem('error_set:%s'%pk, "quest:%s"%uid)
+    def add_error(self, user, quest):
+        print user, quest
+        ErrorRecord.objects.get_or_create(user=user, quest=quest)
+        #c = self.connect()
+        #c.sadd('error_set:%s'%pk, "quest:%s"%uid)
 
-    def get_errors(self, pk):
-        c = self.connect()
-        return map(lambda k: self.get_quest_by_key(k), c.smembers('error_set:%s'%pk))
+    def remove_error(self, user, quest):
+        record = ErrorRecord.objects.get(user=user, quest=quest)
+        record.passed = True
+        record.save()
+        #c = self.connect()
+        #c.srem('error_set:%s'%pk, "quest:%s"%uid)
 
-    def get_quest_by_key(self, key):
-        c = self.connect()
-        quest = c.hgetall(key)
-        option = quest['options']
-        answer = quest['answer']
-        quest['options'] = sorted(eval(option).items(), key=lambda k: k[0])
-        quest['answer'] = eval(answer)
-        return quest
+    def get_errors(self, user):
+        records = ErrorRecord.objects.filter(user=user, passed=False)
+        return map(lambda r: r.quest, records)
+        #c = self.connect()
+        #return map(lambda k: self.get_quest_by_key(k), c.smembers('error_set:%s'%pk))
+
+    #def get_quest_by_key(self, key):
+        #c = self.connect()
+        #quest = c.hgetall(key)
+        #option = quest['options']
+        #answer = quest['answer']
+        #quest['options'] = sorted(eval(option).items(), key=lambda k: k[0])
+        #quest['answer'] = eval(answer)
+        #return quest
 
     #def clear_this_day(self, day):
         #c = self.connect()
@@ -114,11 +129,12 @@ class QuestView(TemplateView):
 
     def get_context_data(self, **kwargs):
         uid = kwargs.get('uid')
+        day = datetime.datetime.strptime(uid, "%Y_%m_%d").date()
         rdb = CacheDB()
-        kwargs['quests'] = rdb.get_quests_by_day(uid)
+        kwargs['quests'] = rdb.get_quests_by_day(day)
         alls = rdb.get_sorted_groups()
         length = len(alls)
-        index = alls.index(int(uid))
+        index = list(alls).index(day)
         if index < 5:
             others = alls[:10]
         elif index > length -5:
@@ -126,6 +142,7 @@ class QuestView(TemplateView):
         else:
             others = alls[index-5:index+5]
         kwargs['others'] = others
+        kwargs['day'] = day
         return super(QuestView, self).get_context_data(**kwargs)
     
 class SignUpView(FormView):
@@ -142,12 +159,11 @@ class ErrorView(TemplateView):
 
     def get_context_data(self, **kwargs):
         user = self.request.user
-        kwargs['redis'] = settings.REDIS_DB
         if not user.is_authenticated():
             return super(ErrorView, self).get_context_data(**kwargs)
 
         rdb = CacheDB()
-        kwargs['quests'] = rdb.get_errors(user.pk)
+        kwargs['quests'] = rdb.get_errors(user)
         return super(ErrorView, self).get_context_data(**kwargs)
 
 class LoginView(FormView):
@@ -183,11 +199,12 @@ def mark_failed(request):
         quest_uid = request.POST.get('uid', '')
         passed = request.POST.get('passed', '')
         if quest_uid:
+            quest = Quest.objects.get(pk=quest_uid)
             rdb = CacheDB()
             if passed == 'true':
-                rdb.remove_error(request.user.pk, quest_uid)
+                rdb.remove_error(request.user, quest)
             elif passed == 'false':
-                rdb.add_error(request.user.pk, quest_uid)
+                rdb.add_error(request.user, quest)
             return JSONResponse(success=True)
     return JSONResponse(success=False)
 
@@ -200,10 +217,13 @@ def mark_day_cleared(request):
             return JSONResponse(success=True)
     return JSONResponse(success=False)
 
-def update_redis(request):
-    p = Parse()
+def update_quests(request):
+    today = datetime.date.today()
+    if Quest.objects.filter(date=today).exists():
+        return JSONResponse(success=False, text='already update')
     try:
-        p.run()
+        u = Updater()
+        u.get_today_quests(today)
+        return JSONResponse(success=True)
     except Exception, e:
-        return JSONResponse(success=False, error=e)
-    return JSONResponse(success=True)
+        return JSONResponse(success=False, text=e)

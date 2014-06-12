@@ -37,6 +37,7 @@
                 <ul>
                     <li><a href="/">首页</a></li>
                     <li><a href="{% url 'errors' %}">错题集</a></li>
+                    <input id="update" type="button" value="更新"/>
                 </ul>
                 </nav>
                 <nav class="navbar navbar-right end">
@@ -77,6 +78,20 @@
             </div>
             <div class="units-row footer">
                 <div class="unit-100 red"></div>
+                <script>
+                    $('#update').click(function(ev) {$.get(
+                        '{% url "update_quests" %}',
+                        function(data) {
+                            if (data.success) {
+                                ev.target.value = "更新成功";
+                                } else {
+                                ev.target.value = "更新失败";
+                            }
+                            console.log(data);
+                        }
+                        )}
+                    )
+                </script>
                 {% block user_js %}
                 {% endblock %}
             </div>

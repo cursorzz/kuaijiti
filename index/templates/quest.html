@@ -30,8 +30,6 @@
 {% endblock %}
 
 {% block content %}
-{{ debug }}
-{{ redis|pprint }}
 {% for quest in quests %}
 <div class="quest" id="{{ forloop.counter }}" style="display:none;">
     <h4 class="">{{ quest.title }}
@@ -40,16 +38,16 @@
     <div class="inner">
         <p>({{ quest.type }}):</p><p>{{ quest.question }}</p>
         <ul class="forms-list">
-        {% for option in quest.options %}
+        {% for key,value in quest.options.items %}
         <li>
-            <label for="{{ option|first }}"><input type="checkbox" name="choice" id="{{ option|first }}"{% if option|first in quest.answer %} class="check"{% endif %}>{{ option|first }} {{ option|last }}</label>
+            <label for="{{ key }}"><input type="checkbox" name="choice" id="{{ key }}"{% if key in quest.answer %} class="check"{% endif %}>{{ key }} {{ value }}</label>
             </li>
         {% endfor %}
         </ul>
     </div>
     <div class="extra">
         <div class="group">
-            <button class="show btn left btn-green" id="{{ quest.uid }}">查看答案</button>
+            <button class="show btn left btn-green" id="{{ quest.pk }}">查看答案</button>
         <button class="btn right next btn-red" style="display:none;">下一题</button>
         </div>
         <div class="answer" style="display:none">
@@ -68,7 +66,7 @@
 <span>{{ uid }}</span>
 </li>
 {% else %}
-<li><a href="{% url 'single_quest' uid=other %}">{{ other }}</a></li>
+<li{% if other == day %} class="active"{% endif %}><a href="{% url 'single_quest' uid=other|date:'Y_m_d' %}">{{ other|date:'Y-m-d' }}</a></li>
 {% endifequal %}
 {% endfor %}
 </ul>

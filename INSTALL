@@ -10,3 +10,5 @@ port 80
 
 name/password: api/secret
 aBv5vhN9Lggo58zURGFsHE56-FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su-IJfDMgVqXzVooDblwJCG
+
+CREATE SCHEMA `quests` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;

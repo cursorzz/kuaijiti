@@ -53,10 +53,9 @@
 {% endblock %}
 
 {% block content %}
-<input id="update" type="button" value="更新"/>
 <ul id="container" class=" blocks-5 text-centered">
     {% for group in groups %}
-    <li class="days"><a href="{% url 'single_quest' uid=group %}">{{ group }}</a></li>
+    <li class="days"><a href="{% url 'single_quest' uid=group|date:'Y_m_d' %}">{{ group|date:"Y-m-d" }}</a></li>
     {% endfor %}
 </ul>
 <div class="holder"></div>
@@ -74,11 +73,5 @@
         next        : "下一页",
         last        : "末页"
     })
-    $('#update').click(function(ev) {$.get(
-        '{% url "update_redis" %}',
-        function(data) {
-            console.log(data);
-        }
-        )})
 </script>
 {% endblock %}

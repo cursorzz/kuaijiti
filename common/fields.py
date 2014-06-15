@@ -20,7 +20,7 @@ class PickledObjectField(models.Field):
             return pickle.loads(str(value))
         else:
             try:
-                return eval(pickle.loads(str(value)))
+                return pickle.loads(str(value))
             except:
                 # If an error was raised, just return the plain value
                 return value
@@ -28,7 +28,8 @@ class PickledObjectField(models.Field):
     def get_db_prep_save(self, value, connection):
         if value is not None and not isinstance(value, PickledObject):
             value = PickledObject(pickle.dumps(value))
-        return super(PickledObjectField, self).get_db_prep_save(value, connection)
+        return value
+        #return super(PickledObjectField, self).get_db_prep_save(value, connection)
 
     def get_internal_type(self): 
         return 'TextField'

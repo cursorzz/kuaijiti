@@ -1,7 +1,7 @@
 # Django settings for quests project.
 from common.xdg import get_path
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (

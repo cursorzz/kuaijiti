@@ -18,6 +18,9 @@ class Quest(models.Model):
     class Meta:
         ordering = ['-date']
 
+    def __unicode__(self):
+        return u"{date}<>{title}".format(date=self.date, title=self.title)
+
 class ErrorRecord(models.Model):
     user = models.ForeignKey(user_model_label, related_name="records")
     passed = models.BooleanField(default=False)

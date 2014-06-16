@@ -1,7 +1,7 @@
 # Django settings for quests project.
 from common.xdg import get_path
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -144,7 +144,7 @@ INSTALLED_APPS = (
     'index',
     'common',
     # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )

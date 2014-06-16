@@ -8,6 +8,7 @@ import datetime
 import hashlib
 from django.conf import settings
 from index.models import Quest
+import cPickle as pickle
 #from multiprocessing import Process, Pool
 
 ROOT_URL = 'http://www.chinaacc.com/zhucekuaijishi/mryl/qk/'
@@ -179,7 +180,7 @@ class Parse(object):
                     info['answer'] = re.findall(r'[A-Za-z]', p.text)
                 elif u"答案解析" in p.text:
                     info['reason'] = p.text
-            client.hmset("quest:"+md5, info)
+            client.set("quest:"+md5, pickle.dumps(info))
             client.sadd("quest_list", "quest:" + md5)
             return info
         except Exception, e:
@@ -192,6 +193,7 @@ class Parse(object):
         pass
 
     def run(self):
+        client.flushdb()
         self.follow_url()
         for index, link in enumerate(self.link_list):
             self.get_day_quests(link)
@@ -245,10 +247,13 @@ class Parse(object):
         print len(quests)
         from index.models import Quest
         for q in quests:
-            info = client.hgetall(q)
-            date = info['date']
-            info['date'] = datetime.datetime.strptime(date, "%Y-%m-%d 00:00:00").date()
-            Quest.objects.create(**info)
+            info = pickle.loads(client.get(q))
+            #info['date'] = datetime.datetime.strptime(date, "%Y-%m-%d 00:00:00").date()
+            info['date'] = info['date'].date()
+            try:
+                Quest.objects.get_or_create(**info)
+            except:
+                print info
         
 
 

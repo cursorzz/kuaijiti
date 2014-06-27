@@ -77,7 +77,7 @@ class Updater(object):
                     info['reason'] = p.text
             
             info['date'] = info['date'].date()
-            Quest.objects.get_or_create(**info)
+            return Quest.objects.get_or_create(**info)
         except Exception, e:
             print e, link
 

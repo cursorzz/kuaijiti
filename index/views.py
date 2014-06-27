@@ -7,11 +7,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.conf import settings
 
+from urllib import urlopen
 import redis
-from hashlib import md5
 import json
 from traceback import print_exc
-from models import Quest, ErrorRecord, DayClearRecord
+from models import Quest, ErrorRecord
 from parser import Updater
 import datetime
 RANK_GLOBAL = "global"
@@ -166,6 +166,12 @@ class ErrorView(TemplateView):
         kwargs['quests'] = rdb.get_errors(user)
         return super(ErrorView, self).get_context_data(**kwargs)
 
+class CompleteMeView(FormView):
+    template_name = ""
+    
+    def get_context_data():
+        pass
+
 class LoginView(FormView):
     template_name = 'login.html'
     form_class = AuthenticationForm
@@ -221,9 +227,26 @@ def update_quests(request):
     today = datetime.date.today()
     if Quest.objects.filter(date=today).exists():
         return JSONResponse(success=False, text='already update')
+
+    start_date = Quest.objects.latest('date').date
+    while start_date <= today:
+        try:
+            u = Updater()
+            u.get_today_quests(start_date)
+        except Exception, e:
+            continue
+        start_date += datetime.timedelta(days=1)
+    return JSONResponse(success=True)
+
+def get_single_quest(request):
+    url = request.GET.get('url', '')
     try:
+        urlopen(url)
         u = Updater()
-        u.get_today_quests(today)
-        return JSONResponse(success=True)
-    except Exception, e:
-        return JSONResponse(success=False, text=e)
+        if u.get_quest_content(url):
+            return JSONResponse(success=True)
+        else:
+            return JSONResponse(success=False)
+    except IOError:
+        return JSONResponse(success=False)
+    

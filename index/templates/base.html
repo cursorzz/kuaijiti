@@ -37,16 +37,18 @@
                 <ul>
                     <li><a href="/">首页</a></li>
                     <li><a href="{% url 'errors' %}">错题集</a></li>
+                    <li><a href="/admin">后台</a></li>
+                    {% if user.is_superuser %}
+                    <input id="update" type="button" value="更新"/>
+                    <input id="url" type="text">
+                    <input id='parse' type="button" value="获取"/>
+                    {% endif %}
                 </ul>
                 </nav>
                 <nav class="navbar navbar-right end">
                 <ul>
                     {% if user.username %}
                     <li>{{ user.username }}</li>
-                    {% if user.is_superuser %}
-                    <input id="update" type="button" value="更新"/>
-                    <li><a href="/admin">后台</a></li>
-                    {% endif %}
                     <li><a href="{% url 'logout'  %}">退出</a></li>
                     {% else %}
                     <li><a href="{% url 'login'  %}">登陆</a></li>
@@ -94,6 +96,19 @@
                         }
                         )}
                     )
+                    $('#parse').click(function(ev) {
+                        $.get(
+                        '{% url "update_single_quest" %}',
+                        {'url': $('#url').val()},
+                        function(data) {
+                            if (data.success) {
+                                ev.target.value = "获取成功";
+                                } else {
+                                ev.target.value = "获取失败";
+                            }
+                        }
+                        )
+                        }
                 </script>
                 {% block user_js %}
                 {% endblock %}

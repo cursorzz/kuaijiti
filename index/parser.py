@@ -9,6 +9,7 @@ import hashlib
 from django.conf import settings
 from index.models import Quest
 import cPickle as pickle
+from traceback import print_exc
 #from multiprocessing import Process, Pool
 
 ROOT_URL = 'http://www.chinaacc.com/zhucekuaijishi/mryl/qk/'
@@ -56,7 +57,7 @@ class Updater(object):
             info['uid'] = md5
             self.br.open(link)
             page = bs(self.br.response().read())
-            info['title'] = page.select(".news_content h1")[0].text
+            info['title'] = page.select(".news_content")[0].findChild().text
             show_button = page.select('#fontzoom p input[type=button]')[0]
             quest = show_button.parent.find_previous_siblings('p')
             quest.reverse()
@@ -66,7 +67,7 @@ class Updater(object):
             info['type'] = quest[0].text
             info['question'] = quest[1].text
             for q in quest[2:]:
-                match = re.match(ur'[\u3000|\xa0|\s]+([A-Z]+)[\u3001](.+)$', q.text)
+                match = re.match(ur'[\u3000|\xa0|\s]*([A-Z]+)[\u3001]([^\xa0]+)$', q.text)
                 if match:
                     info['options'][match.groups()[0]] = match.groups()[1]
                     continue
@@ -79,6 +80,7 @@ class Updater(object):
             info['date'] = info['date'].date()
             return Quest.objects.get_or_create(**info)
         except Exception, e:
+            print_exc()
             print e, link
 
 class Parse(object):

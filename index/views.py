@@ -197,7 +197,7 @@ class SettingView(TemplateView):
         else:
             try:
                 kwargs['options'] = user.setting.options['visible_type']
-            except AttributeError:
+            except:
                 kwargs['options'] = []
             kwargs['types'] = Quest.QUEST_TYPES
         return super(SettingView, self).get_context_data(**kwargs)

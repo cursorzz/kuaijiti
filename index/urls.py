@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from views import (
         IndexView, QuestView, LoginView, SignUpView,
-        ErrorView,
+        ErrorView, SettingView
         )
 
 # Uncomment the next two lines to enable the admin:
@@ -19,6 +19,7 @@ urlpatterns = patterns('',
      url(r'^login/$', LoginView.as_view(), name="login"),
      url(r'^logout/$', 'index.views.user_logout', name="logout"),
      url(r'^errors/$', ErrorView.as_view(), name="errors"),
+     url(r'^settings/$', SettingView.as_view(), name="settings"),
 
      url(r'^record/error$', 'index.views.mark_failed', name="mark_failed"),
      url(r'^logout/$', 'index.views.user_logout', name="logout"),

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h4>设置</h4>
+<form class="forms width-50" action="" method="post">
+    <h4 class="subheading">显示设置</h4>
+    {% csrf_token %}
+    <ul class="forms-list">
+        {% for key,value in types %}
+        <li>
+        <input type="checkbox" name='quest-type-{{ key }}' {% if key in options %}checked{% endif %}/>
+        <label for="quest-type-{{ key }}">{{ value }}</label>
+        </li>
+        {% endfor %}
+        <li><input type="submit" class="btn btn-green" value="提交"/></li>
+    </ul>
+</form>
+{% endblock %}

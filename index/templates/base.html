@@ -37,6 +37,7 @@
                 <ul>
                     <li><a href="/">首页</a></li>
                     <li><a href="{% url 'errors' %}">错题集</a></li>
+                    <li><a href="{% url 'settings' %}">用户设置</a></li>
                     <li><a href="/admin">后台</a></li>
                     {% if user.is_superuser %}
                     <input id="update" type="button" value="更新"/>

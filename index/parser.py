@@ -30,9 +30,23 @@ class Updater(object):
     def get_today_quests(self, date):
         self.br.open(ROOT_URL)
         for link in self.br.links(url_regex=r'^/zhucekuaijishi/mryl\S+.shtml$'):
-            date_match = re.match(day_pattern, link.absolute_url).groups()[0]
-            if date_match == date.strftime('%Y%m%d'):
-                self.get_day_quests(link)
+            if self.is_right_quests_entrance(date, link.text):
+                print link
+            
+            #date_match = re.match(day_pattern, link.absolute_url).groups()[0]
+            #if date_match == date.strftime('%Y%m%d'):
+                #self.get_day_quests(link)
+
+    def is_right_quests_entrance(self, date, html_text):
+        str_date = date.strftime('%m.%d')
+        try:
+            html_text = html_text.decode('utf-8')
+        except:
+            return False
+        result = re.findall(ur'（%s）'%str_date, html_text)
+        if result:
+            return True
+        return False
 
     def get_day_quests(self, link):
         url, absolute_url = link.url, link.absolute_url

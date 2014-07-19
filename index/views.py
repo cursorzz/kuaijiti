@@ -11,7 +11,7 @@ from urllib import urlopen
 import redis
 import json
 from traceback import print_exc
-from models import Quest, ErrorRecord
+from models import Quest, ErrorRecord, Settings
 from parser import Updater
 import datetime
 RANK_GLOBAL = "global"
@@ -127,11 +127,17 @@ class IndexView(TemplateView):
 class QuestView(TemplateView):
     template_name = 'quest.html'
 
+    def get_visible_options(self, user):
+        try:
+            return user.setting.options['visible_type']
+        except:
+            return dict(Quest.QUEST_TYPES).keys
+
     def get_context_data(self, **kwargs):
         uid = kwargs.get('uid')
         day = datetime.datetime.strptime(uid, "%Y_%m_%d").date()
         rdb = CacheDB()
-        kwargs['quests'] = rdb.get_quests_by_day(day)
+        kwargs['quests'] = rdb.get_quests_by_day(day).filter(q_type__in=self.get_visible_options(self.request.user))
         alls = rdb.get_sorted_groups()
         length = len(alls)
         index = list(alls).index(day)
@@ -165,6 +171,36 @@ class ErrorView(TemplateView):
         rdb = CacheDB()
         kwargs['quests'] = rdb.get_errors(user)
         return super(ErrorView, self).get_context_data(**kwargs)
+
+class SettingView(TemplateView):
+    template_name = 'settings.html'
+
+    def post(self, request, *args, **kwargs):
+        visble_q_types = []
+        for key in request.POST:
+            if key.startswith('quest-type'):
+                visble_q_types.append(int(key[-1]))
+        if Settings.objects.filter(user=request.user).exists():
+            setting = Settings.objects.get(user=request.user)
+            setting.options = {'visible_type': visble_q_types}
+        else:
+            setting = Settings()
+            setting.user = request.user
+            setting.options = {'visible_type': visble_q_types}
+        setting.save()
+        return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user 
+        if not user.is_authenticated():
+            pass
+        else:
+            try:
+                kwargs['options'] = user.setting.options['visible_type']
+            except AttributeError:
+                kwargs['options'] = []
+            kwargs['types'] = Quest.QUEST_TYPES
+        return super(SettingView, self).get_context_data(**kwargs)
 
 class CompleteMeView(FormView):
     template_name = ""
@@ -249,4 +285,4 @@ def get_single_quest(request):
             return JSONResponse(success=False)
     except IOError:
         return JSONResponse(success=False)
-    
+

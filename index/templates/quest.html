@@ -40,7 +40,7 @@
         <ul class="forms-list">
         {% for key,value in quest.options.items %}
         <li>
-            <label for="{{ key }}"><input type="checkbox" name="choice" id="{{ key }}"{% if key in quest.answer %} class="check"{% endif %}>{{ key }} {{ value }}</label>
+            <label for="{{ key }}"><input{% if quest.single_or_multiple %} type="checkbox"{% else %} type="radio"{% endif %} name="choice" id="{{ key }}"{% if key in quest.answer %} class="check"{% endif %}>{{ key }} {{ value }}</label>
             </li>
         {% endfor %}
         </ul>

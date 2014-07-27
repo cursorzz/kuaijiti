@@ -34,6 +34,14 @@ class Quest(models.Model):
     def __unicode__(self):
         return u"{date}<>{title}".format(date=self.date, title=self.title)
 
+    def single_or_multiple(self):
+        single = u"单选"
+        #multi = u"多选"
+        if single in self.type:
+            return 0
+        else:
+            return 1
+
 class ErrorRecord(models.Model):
     user = models.ForeignKey(user_model_label, related_name="records")
     passed = models.BooleanField(default=False)

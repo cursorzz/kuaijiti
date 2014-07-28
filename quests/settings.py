@@ -13,7 +13,7 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'quests',                      # Or path to database file if using sqlite3.
+            'NAME': 'quest1',                      # Or path to database file if using sqlite3.
             # The following settings are not used with sqlite3:
             'USER': 'root',
             'PASSWORD': 'root',
@@ -41,6 +41,11 @@ else:
             'port': 80,
             'password': "%s-%s-%s"%('aBv5vhN9Lggo58zURGFsHE56', 'FOnYOKWYnT92fT7VMcVWUfY6MGMfm1Su',  'xpmunVCjmcXwbGgzPXRO')
             }
+
+import sys
+if 'test' in sys.argv:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+    DATABASES['cms'] = {'ENGINE': 'django.db.backends.sqlite3'}
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['*']

@@ -38,8 +38,11 @@ class CacheDB(object):
 
 
     def get_latest_quests(self):
-        day = Quest.objects.all().latest('date').date
-        return Quest.objects.filter(date=day)
+        if Quest.objects.all():
+            day = Quest.objects.all().latest('date').date
+            return Quest.objects.filter(date=day)
+        else:
+            return []
 
         #days = sorted(map(lambda k: int(k.split(':')[1]), c.smembers('days_list')))
         #if days:

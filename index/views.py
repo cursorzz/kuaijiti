@@ -131,16 +131,17 @@ class QuestView(TemplateView):
     template_name = 'quest.html'
 
     def get_visible_options(self, user):
+        types_dict = dict(Quest.QUEST_TYPES)
         try:
-            return user.setting.options['visible_type']
+            return map(lambda v: types_dict[v], user.setting.options['visible_type'])
         except:
-            return dict(Quest.QUEST_TYPES).keys
+            return types_dict.values
 
     def get_context_data(self, **kwargs):
         uid = kwargs.get('uid')
         day = datetime.datetime.strptime(uid, "%Y_%m_%d").date()
         rdb = CacheDB()
-        kwargs['quests'] = rdb.get_quests_by_day(day).filter(q_type__in=self.get_visible_options(self.request.user))
+        kwargs['quests'] = rdb.get_quests_by_day(day).filter(title__in=self.get_visible_options(self.request.user))
         alls = rdb.get_sorted_groups()
         length = len(alls)
         index = list(alls).index(day)
